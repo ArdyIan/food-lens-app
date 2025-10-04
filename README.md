@@ -1,3 +1,3 @@
-# image_classification_litert
+# food lens app
 
-A new Flutter project.
+
