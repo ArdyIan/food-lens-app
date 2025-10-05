@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_classification_litert/controller/image_classification_provider.dart';
 import 'package:image_classification_litert/service/image_classification_service.dart';
 import 'package:image_classification_litert/widget/camera_view.dart';
-import 'package:image_classification_litert/widget/classification_item.dart';
 import 'package:provider/provider.dart';
+import 'package:image_classification_litert/widget/result_page.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -18,17 +20,15 @@ class HomePage extends StatelessWidget {
       body: ColoredBox(
         color: Colors.black,
         child: Center(
-          // inject all classes
           child: MultiProvider(
             providers: [
               Provider(create: (context) => ImageClassificationService()),
               ChangeNotifierProvider(
-                create: (context) => ImageClassificationViewmodel(
-                  context.read<ImageClassificationService>(),
-                ),
+                create: (context) =>
+                    ImageClassificationViewmodel(context.read<ImageClassificationService>()),
               ),
             ],
-            child: _HomeBody(),
+            child: const _HomeBody(),
           ),
         ),
       ),
@@ -36,7 +36,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-//  change this widget into StatefulWidget
 class _HomeBody extends StatefulWidget {
   const _HomeBody();
 
@@ -45,7 +44,6 @@ class _HomeBody extends StatefulWidget {
 }
 
 class _HomeBodyState extends State<_HomeBody> {
-  //setup the provider and dispose it after using it
   late final readViewmodel = context.read<ImageClassificationViewmodel>();
 
   @override
@@ -56,42 +54,81 @@ class _HomeBodyState extends State<_HomeBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CameraView(
-          // add the parameter and run the inference process
-          onImage: (cameraImage) async {
-            await readViewmodel.runClassification(cameraImage);
-          },
-        ),
-        //add a widget to see the result
-        Positioned(
-          bottom: 0,
-          right: 0,
-          left: 0,
-          child: Consumer<ImageClassificationViewmodel>(
-            builder: (_, updateViewmodel, __) {
-              final classifications = updateViewmodel.classifications.entries;
+    final viewmodel = context.watch<ImageClassificationViewmodel>();
+    final selectedImage = viewmodel.selectedImage;
 
-              if (classifications.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return SingleChildScrollView(
-                child: Column(
-                  children: classifications
-                      .map(
-                        (classification) => ClassificatioinItem(
-                          item: classification.key,
-                          value: classification.value.toStringAsFixed(2),
+    return Center(
+      child: selectedImage == null
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.image_outlined, color: Colors.white70, size: 100),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await viewmodel.takePictureWithCamera();
+                    if (viewmodel.selectedImage != null &&
+                        viewmodel.classifications.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ResultPage(
+                            imageFile: viewmodel.selectedImage!,
+                            classifications: viewmodel.classifications,
+                          ),
                         ),
-                      )
-                      .toList(),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Ambil dari Kamera"),
                 ),
-              );
-            },
-          ),
-        ),
-      ],
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await viewmodel.pickImageFromGallery();
+                    if (viewmodel.selectedImage != null &&
+                        viewmodel.classifications.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ResultPage(
+                            imageFile: viewmodel.selectedImage!,
+                            classifications: viewmodel.classifications,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text("Pilih dari Galeri"),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    image: DecorationImage(
+                      image: FileImage(selectedImage),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    viewmodel.clearImage();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text("Ambil Ulang"),
+                ),
+              ],
+            ),
     );
   }
 }

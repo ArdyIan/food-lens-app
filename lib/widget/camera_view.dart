@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -91,9 +90,9 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   Future<void> _pickFromGallery() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
+    if (pickedFile != null) {
       setState(() {
-        _selectedImage = picked;
+        _selectedImage = pickedFile;
       });
 
       final provider = Provider.of<ImageClassificationViewmodel>(
@@ -205,4 +204,3 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     );
   }
 }
-

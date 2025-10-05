@@ -1,21 +1,51 @@
 import 'package:flutter/material.dart';
 
-class ClassificatioinItem extends StatelessWidget {
-  final String item;
-  final String value;
+class ClassificationItem extends StatelessWidget {
+  final String label;
+  final num confidence;
 
-  const ClassificatioinItem({
+  const ClassificationItem({
     super.key,
-    required this.item,
-    required this.value,
+    required this.label,
+    required this.confidence,
   });
 
   @override
   Widget build(BuildContext context) {
+    final confidencePercent = (confidence * 100).toStringAsFixed(1);
+
     return Container(
-      padding: const EdgeInsets.all(8),
-      color: Colors.white,
-      child: Row(children: [Text(item), const Spacer(), Text(value)]),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Label hasil klasifikasi
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          // Nilai confidence
+          Text(
+            "Confidence: $confidencePercent%",
+            style: const TextStyle(
+              color: Colors.lightBlueAccent,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as image_lib;
 
@@ -18,10 +20,11 @@ class ImageUtils {
   // Converts a [CameraImage] in BGRA888 format to [imageLib.Image] in RGB format
   static image_lib.Image convertBGRA8888ToImage(CameraImage cameraImage) {
     image_lib.Image img = image_lib.Image.fromBytes(
-        width: cameraImage.planes[0].width!,
-        height: cameraImage.planes[0].height!,
-        bytes: cameraImage.planes[0].bytes.buffer,
-        order: image_lib.ChannelOrder.bgra);
+      width: cameraImage.planes[0].width!,
+      height: cameraImage.planes[0].height!,
+      bytes: cameraImage.planes[0].bytes.buffer,
+      order: image_lib.ChannelOrder.bgra,
+    );
     return img;
   }
 
@@ -103,5 +106,49 @@ class ImageUtils {
       }
     }
     return image;
+  }
+
+  //preprocessing imgae from file
+  static Future<Float32List> preprocessingImage(File imageFile) async {
+    //read the file image
+    final imageBytes = await imageFile.readAsBytes();
+    final image = image_lib.decodeImage(imageBytes);
+
+    if (image == null) {
+      throw Exception("Gagal decode image dari file");
+    }
+
+    //resize to 224x224 match to input model
+    final resized = image_lib.copyResize(image, width: 224, height: 224);
+
+    // 3. siapkan Float32List untuk input [224*224*3]
+  final Float32List input = Float32List(224 * 224 * 3);
+  int index = 0;
+
+  for (int y = 0; y < 224; y++) {
+    for (int x = 0; x < 224; x++) {
+      // ambil pixel (int atau object)
+      final dynamic pixel = resized.getPixel(x, y);
+
+      int r, g, b;
+
+      if (pixel is int) {
+        // pixel sebagai int ARGB (0xAARRGGBB)
+        r = (pixel >> 16) & 0xFF;
+        g = (pixel >> 8) & 0xFF;
+        b = pixel & 0xFF;
+      } else {
+        // pixel sebagai object dengan properti .r/.g/.b
+        r = pixel.r;
+        g = pixel.g;
+        b = pixel.b;
+      }
+
+      input[index++] = r / 255.0;
+      input[index++] = g / 255.0;
+      input[index++] = b / 255.0;
+    }
+  }
+    return input;
   }
 }
