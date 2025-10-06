@@ -6,7 +6,6 @@ import 'package:image_classification_litert/widget/camera_view.dart';
 import 'package:provider/provider.dart';
 import 'package:image_classification_litert/widget/result_page.dart';
 
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -24,8 +23,9 @@ class HomePage extends StatelessWidget {
             providers: [
               Provider(create: (context) => ImageClassificationService()),
               ChangeNotifierProvider(
-                create: (context) =>
-                    ImageClassificationViewmodel(context.read<ImageClassificationService>()),
+                create: (context) => ImageClassificationViewmodel(
+                  context.read<ImageClassificationService>(),
+                ),
               ),
             ],
             child: const _HomeBody(),
@@ -62,7 +62,11 @@ class _HomeBodyState extends State<_HomeBody> {
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.image_outlined, color: Colors.white70, size: 100),
+                const Icon(
+                  Icons.image_outlined,
+                  color: Colors.white70,
+                  size: 100,
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () async {
