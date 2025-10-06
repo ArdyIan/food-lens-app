@@ -46,7 +46,8 @@ class ResultPage extends StatelessWidget {
               (entry) => Padding(
                 padding: EdgeInsets.symmetric(vertical: 4),
                 child: Text(
-                  "${entry.key} - Confidence: ${(entry.value * 100).toStringAsFixed(2)}%",
+                  // "${entry.key} - Confidence: ${(entry.value.toDouble() * 100).toStringAsFixed(2)}%",
+"${entry.key} - Confidence: ${(entry.value * 100).toStringAsFixed(2)}%",
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),

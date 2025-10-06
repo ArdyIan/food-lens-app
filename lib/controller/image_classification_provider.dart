@@ -10,7 +10,7 @@ class ImageClassificationViewmodel extends ChangeNotifier {
 
   File? _selectedImage;
   Map<String, num> _classifications = {};
-  bool _isModelReady = false; 
+  bool _isModelReady = false;
 
   ImageClassificationViewmodel(this._service) {
     _init();
@@ -29,7 +29,7 @@ class ImageClassificationViewmodel extends ChangeNotifier {
   // Inisialisasi model secara asinkron
   Future<void> _init() async {
     try {
-      await _service.loadModel(); 
+      await _service.loadModel();
       _isModelReady = true;
       notifyListeners();
     } catch (e) {
@@ -61,7 +61,7 @@ class ImageClassificationViewmodel extends ChangeNotifier {
 
   /// Method utama untuk menjalankan klasifikasi gambar (dipanggil UI)
   Future<void> classifyImage(File imageFile) async {
-    // Pastikan model siap 
+    // Pastikan model siap
     if (!_isModelReady) {
       await _service.loadModel();
       _isModelReady = true;
@@ -69,7 +69,7 @@ class ImageClassificationViewmodel extends ChangeNotifier {
     }
 
     final result = await _service.classify(imageFile);
-    // convert Map<String,double> ke Map<String,num> 
+    // convert Map<String,double> ke Map<String,num>
     _classifications = result.map((k, v) => MapEntry(k, v));
     notifyListeners();
   }
