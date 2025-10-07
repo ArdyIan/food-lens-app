@@ -18,7 +18,7 @@ class ImageClassificationService {
   late Tensor outputTensor;
   late final IsolateInference isolateInference;
 
-  // --- FUNGSI SOFTMAX ---
+  // FUNGSI SOFTMAX 
   List<double> _softmax(List<double> logits) {
     if (logits.isEmpty) return [];
 
@@ -29,7 +29,6 @@ class ImageClassificationService {
 
     return exp.map((e) => e / sumExp).toList();
   }
-  // -----------------------
 
   Future<void> _loadModel() async {
     try {
@@ -103,7 +102,7 @@ class ImageClassificationService {
     try {
       if (_interpreter == null) await loadModel();
 
-      log('🧩 Input tensor type: ${inputTensor.type}');
+      log(' Input tensor type: ${inputTensor.type}');
 
       final imageData = File(imageFile.path).readAsBytesSync();
       final image = img.decodeImage(imageData);
@@ -112,7 +111,7 @@ class ImageClassificationService {
 
       final resizedImage = img.copyResize(image, width: 224, height: 224);
 
-      // 🔴 Pra-pemrosesan: Kembalikan ke Integer [0, 255] (uint8)
+      // Pra-pemrosesan: Kembalikan ke Integer [0, 255] (uint8)
       final input = List.generate(
         1,
         (_) => List.generate(
@@ -134,7 +133,11 @@ class ImageClassificationService {
           .map((e) => (e as num).toDouble())
           .toList();
 
-      final probabilities = _softmax(rawScores);
+      log("raw scores : $rawScores");
+
+      final probabilities = rawScores.map((e) => e / 255.0).toList();
+
+      log("probabilites : $probabilities");
 
       final Map<String, double> results = {};
       for (int i = 0; i < _labels.length && i < probabilities.length; i++) {
@@ -146,11 +149,11 @@ class ImageClassificationService {
       );
 
       log(
-        '✅ Inference berhasil dijalankan (${sortedResults.keys.first}, Confidence: ${sortedResults.values.first * 100}%)',
+        ' Inference berhasil dijalankan (${sortedResults.keys.first}, Confidence: ${sortedResults.values.first * 100}%)',
       );
       return sortedResults;
     } catch (e) {
-      log('❌ Error inferenceImageFile: $e');
+      log(' Error inferenceImageFile: $e');
       return {};
     }
   }

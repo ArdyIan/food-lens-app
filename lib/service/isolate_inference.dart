@@ -27,22 +27,21 @@ class IsolateInference {
     _sendPort = await _receivePort.first;
   }
 
-  // --- FUNGSI SOFTMAX UNTUK ISOLATE ---
+  // FUNGSI SOFTMAX UNTUK ISOLATE
   // Fungsi ini harus tersedia di dalam konteks Isolate
   static List<double> _softmax(List<double> logits) {
     if (logits.isEmpty) return [];
 
-    // 1. Hitung eksponensial (e^score)
+    //  Hitung eksponensial (e^score)
     final exp = logits.map((e) => math.exp(e)).toList();
-    // 2. Hitung jumlah semua eksponensial
+    //  Hitung jumlah semua eksponensial
     final sumExp = exp.reduce((a, b) => a + b);
 
     if (sumExp == 0) return logits.map((_) => 0.0).toList();
 
-    // 3. Bagi setiap eksponensial dengan total sum
+    // Bagi setiap eksponensial dengan total sum
     return exp.map((e) => e / sumExp).toList();
   }
-  // ------------------------------------
 
   static void entryPoint(SendPort sendPort) async {
     final port = ReceivePort();
@@ -92,7 +91,7 @@ class IsolateInference {
     _receivePort.close();
   }
 
-  // 3. Pra-pemrosesan Gambar (Kembali ke integer [0, 255])
+  // Pra-pemrosesan Gambar (Kembali ke integer [0, 255])
   static List<List<List<num>>> _imagePreProcessing(
     // Tipe Output tetap List<num>
     CameraImage cameraImage,
@@ -123,7 +122,7 @@ class IsolateInference {
     return imageMatrix;
   }
 
-  // 4. Menjalankan Inferensi dan Mengkonversi Output Mentah
+  // Menjalankan Inferensi dan Mengkonversi Output Mentah
   static List<double> _runInference(
     List<List<List<List<num>>>> input,
     List<List<num>> output, // Wadah output menggunakan List<num>
